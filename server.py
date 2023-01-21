@@ -1,6 +1,7 @@
-from flask import Flask
+from flask import Flask, request
 import json
 from mock_data import catalog
+from config import db
 
 app = Flask("server")
 
@@ -34,6 +35,18 @@ def version():
 @app.get("/api/catalog")
 def get_catalog():
     return json.dumps(catalog)
+
+
+# save products
+@app.post("/api/catalog")
+def save_prodcuts():
+    product = request.get_json()
+    db.prodcuts.insert_one(product)
+
+    product["_id"] = str(product["_id"])
+
+    return json.dumps(product)
+
 
 @app.get("/api/catalog/<category>")
 def get_by_category(category):
