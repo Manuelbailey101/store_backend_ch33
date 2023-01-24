@@ -34,7 +34,13 @@ def version():
 
 @app.get("/api/catalog")
 def get_catalog():
-    return json.dumps(catalog)
+    cursor = db.prodcuts.find({})
+    results = []
+    for prod in cursor:
+        prod ["_id"] = str(prod["_id"])
+        results.append(prod)
+
+    return json.dumps(results)    
 
 
 # save products
@@ -50,20 +56,24 @@ def save_prodcuts():
 
 @app.get("/api/catalog/<category>")
 def get_by_category(category):
+    cursor = db.prodcuts.find({"Category":category})
     result = []
-    for prod in catalog:
-        if prod["Category"].lower() == category.lower():
-            result.append(prod)
+    for prod in cursor:
+        prod ["_id"] = str(prod["_id"])
+        result.append(prod)
 
-    return json.dumps(result) 
+    return json.dumps(result)    
+
 
 
 @app.get("/api/catalog/search/search/<title>")
 def search_by_title(title):
+    cursor = db.prodcuts.find({"title": {"$regex": title, "$options": "i"} }) 
     result = []
-    for prod in catalog:
-        if title.lower() in prod["title"].lower():
-            result.append(prod)  
+    for prod in cursor:
+        prod ["_id"] = str(prod["_id"])
+        result.append(prod)
+
     return json.dumps(result)            
 
 
@@ -71,9 +81,11 @@ def search_by_title(title):
 
 @app.get('/api/product/cheaper/<price>')
 def search_by_price(price):
+    cursor = db.prodcuts.find({})
     result = []
-    for prod in catalog:
+    for prod in cursor:
         if prod ["price"] < float (price):
+           prod["_id"] = str(prod["_id"])
            result.append(prod)
 
     return json.dumps(result)     
@@ -81,18 +93,21 @@ def search_by_price(price):
 
 @app.get("/api/product/count")
 def count_product():
-    count = len(catalog)
+    count = db.prodcuts.count_documents({})
+
     return json.dumps(count)
 
 
 
 @app.get("/api/product/cheapest")
 def get_cheapest():
-    answer = catalog[0]
-    for prod in catalog:
-        if prod ["price"]< answer["answer"]:
-            answer = prod     
+    cursor = db.prodcuts.find({})
+    answer = cursor[0]
+    for prod in cursor:
+        if prod ["price"]< answer["price"]:
+            answer = prod
 
+    answer["_id"] = str(answer["_id"])        
     return json.dumps(answer)
 
 

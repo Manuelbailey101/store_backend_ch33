@@ -5,3 +5,6 @@ venv\Scripts\activate
 
 mac:
 source venv/bin/activat
+
+
+db is the database on the server , will always start with db,products
